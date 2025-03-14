@@ -1,41 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import Microphone from './components/Microphone';
-import StatusIndicator from './components/StatusIndicator';
+import AudioRecorder from './components/AudioRecorder';
 import { checkApiStatus } from './services/api';
 
 function App() {
-  const [apiStatus, setApiStatus] = useState({ online: false, loading: true });
-
+  const [apiStatus, setApiStatus] = useState({ status: 'unknown', message: 'Verificando conexão...' });
+  
   useEffect(() => {
-    const checkStatus = async () => {
+    // Verificar status da API
+    const verifyApiStatus = async () => {
       try {
         const status = await checkApiStatus();
-        setApiStatus({ online: status.status === 'online', loading: false });
+        setApiStatus({ 
+          status: 'online', 
+          message: `Mavie está online (versão ${status.version})`
+        });
       } catch (error) {
-        console.error('Erro ao verificar status da API:', error);
-        setApiStatus({ online: false, loading: false });
+        setApiStatus({ 
+          status: 'offline', 
+          message: 'Mavie está offline no momento. Tente novamente mais tarde.' 
+        });
       }
     };
 
-    checkStatus();
-    // Verificar status a cada 30 segundos
-    const intervalId = setInterval(checkStatus, 30000);
-
-    return () => clearInterval(intervalId);
+    verifyApiStatus();
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Mavi - Assistente de Voz</h1>
-        <StatusIndicator status={apiStatus} />
+    <div className="app">
+      <header>
+        <h1>Mavie</h1>
+        <p>Assistente Virtual de Consultório Médico</p>
+        <div className={`status-indicator ${apiStatus.status}`}>
+          {apiStatus.message}
+        </div>
+        <div className="format-support">
+          <small>Usando conversão automática para WAV</small>
+        </div>
       </header>
-      <main className="App-main">
-        <Microphone apiStatus={apiStatus.online} />
+      
+      <main>
+        <AudioRecorder isApiAvailable={apiStatus.status === 'online'} />
       </main>
-      <footer className="App-footer">
-        <p>© {new Date().getFullYear()} Mavi Voice Assistant</p>
+      
+      <footer>
+        <p>© 2025 Mavie - Assistente Médico Virtual</p>
       </footer>
     </div>
   );

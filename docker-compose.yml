@@ -2,8 +2,17 @@ services:
   mavi-web:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
-      - "3000:80"
+      - "3000:3000"
     restart: unless-stopped
-    container_name: mavi-web
+    volumes:
+      # Montar diretórios do projeto para desenvolvimento com hot-reload
+      - ./src:/app/src
+      - ./public:/app/public
+      # Evitar que o node_modules local substitua o do container
+      - /app/node_modules
+    environment:
+      # Habilitar hot-reload
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=0

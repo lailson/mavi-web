@@ -1,0 +1,16 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Instalar dependências
+COPY package*.json ./
+RUN npm install
+
+# Copiar o restante dos arquivos
+COPY . .
+
+# Expor a porta usada pelo React em desenvolvimento
+EXPOSE 3000
+
+# Iniciar em modo de desenvolvimento
+CMD ["npm", "start"]
